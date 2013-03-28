@@ -24,8 +24,7 @@ public class ModelGun extends ModelBase
 		
 		Pice0 = new ModelRenderer(this, "Pice0");
 		Pice0.setRotationPoint(0F, 0F, 0F);
-		setRotation(Pice0, 0F, 0F, 0F);
-		Pice0.mirror = true;
+		Pice0.mirror = false;
 		Pice0.addBox("Part0", -15F, -3F, -2F, 30, 1, 4);
 		Pice0.addBox("Part1", -15F, -2F, 2F, 30, 4, 1);
 		Pice0.addBox("Part2", -15F, -2F, -3F, 30, 4, 1);

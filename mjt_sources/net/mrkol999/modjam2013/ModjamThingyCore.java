@@ -4,9 +4,14 @@ import net.minecraft.item.Item;
 import net.mrkol999.modjam2013.items.ItemGun;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
 @Mod(modid = "mrkol999_ModJamThingy2013", name = "Modjam Thingy")
+@NetworkMod(clientSideRequired = true, serverSideRequired = true)
 public class ModjamThingyCore
 {
 	//---------------------------ITEMS----------------------------------
@@ -21,19 +26,19 @@ public class ModjamThingyCore
 	public static ProxyCommon proxy;
 	
 	@Mod.PreInit
-	public void PreInit()
+	public void PreInit(FMLPreInitializationEvent e)
 	{
 		this.loadLocalizations();
 	}
 	
 	@Mod.Init
-	public void Init()
+	public void Init(FMLInitializationEvent e)
 	{
-		proxy.registerClientside();
+		proxy.registerClientside(); //yaaaay
 	}
 	
 	@Mod.PostInit
-	public void PostInit()
+	public void PostInit(FMLPostInitializationEvent e)
 	{
 		
 	}
