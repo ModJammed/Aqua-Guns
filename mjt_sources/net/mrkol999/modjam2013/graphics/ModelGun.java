@@ -5,12 +5,9 @@ import net.minecraft.block.Block;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.liquids.IBlockLiquid;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.src.ModLoader;
-import net.minecraftforge.liquids.LiquidDictionary;
 import net.minecraftforge.liquids.LiquidStack;
 import net.minecraft.client.renderer.Tessellator;
 
@@ -65,44 +62,49 @@ public class ModelGun extends ModelBase
 			if(Block.blocksList[currls.itemID] instanceof IBlockLiquid) tex = ((IBlockLiquid)Block.blocksList[currls.itemID]).getLiquidBlockTextureFile();
 			else tex = "/terrain.png";
 			
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, ModLoader.getMinecraftInstance().renderEngine.getTexture(tex));
+			ModLoader.getMinecraftInstance().renderEngine.bindTexture(tex);
 
 			Tessellator tes = Tessellator.instance;
 
-			int miu = (int) is.getItem().getIconIndex(is).getMinU();
-			int miv = (int) is.getItem().getIconIndex(is).getMinV();
-			int mau = (int) is.getItem().getIconIndex(is).getMaxU();
-			int mav = (int) is.getItem().getIconIndex(is).getMaxV();
-			int lh = (int) Math.floor(currls.amount / 200);
+			currls.getRenderingIcon().getInterpolatedU(0);
+			double miu = currls.getRenderingIcon().getInterpolatedU(0);
+			double miv = currls.getRenderingIcon().getInterpolatedV(0 + (((currls.amount * -1) + 1000) / 62.5d));
+			double mau = currls.getRenderingIcon().getInterpolatedU(16);
+			double mav = currls.getRenderingIcon().getInterpolatedV(16);
+			double lh = currls.amount / 200F;
 
-			tes.startDrawingQuads(); // ugly tessellation code
+			GL11.glPushMatrix();
+			GL11.glScalef(1f/16f, 1f/16f, 1f/16f); 
+			// without F it scales it down to 0, 0, 0. That's because it is trying to make 0.0625 an integer, and 0.0625 without .0625 is 0.
+			tes.startDrawingQuads(); // fine tessellation code
 			{
-				tes.addVertexWithUV(-1.5, -3, -1.5, mau, mav);
-				tes.addVertexWithUV(1.5, -3, -1.5, mau, miv);
-				tes.addVertexWithUV(1.5, -3 - lh, -1.5, miu, mav);
+				tes.addVertexWithUV(-1.5, -3, -1.5, mau, miv);
+				tes.addVertexWithUV(1.5, -3, -1.5, miu, miv);
+				tes.addVertexWithUV(1.5, -3 - lh, -1.5, miu, mav);      //correct
 				tes.addVertexWithUV(-1.5, -3 - lh, -1.5, mau, mav);
 
-				tes.addVertexWithUV(-1.5, -3, -1.5, mau, mav);
-				tes.addVertexWithUV(-1.5, -3, 1.5, mau, miv);
 				tes.addVertexWithUV(-1.5, -3 - lh, 1.5, miu, mav);
+				tes.addVertexWithUV(-1.5, -3, 1.5, miu, miv);           //correct
+				tes.addVertexWithUV(-1.5, -3, -1.5, mau, miv);
 				tes.addVertexWithUV(-1.5, -3 - lh, -1.5, mau, mav);
 
-				tes.addVertexWithUV(-1.5, -3, 1.5, mau, mav);
+				tes.addVertexWithUV(1.5, -3 - lh, 1.5, mau, mav);
 				tes.addVertexWithUV(1.5, -3, 1.5, mau, miv);
-				tes.addVertexWithUV(1.5, -3 - lh, 1.5, miu, mav);
-				tes.addVertexWithUV(-1.5, -3 - lh, 1.5, mau, mav);
+				tes.addVertexWithUV(-1.5, -3, 1.5, miu, miv);           //correct
+				tes.addVertexWithUV(-1.5, -3 - lh, 1.5, miu, mav);
 
-				tes.addVertexWithUV(1.5, -3, -1.5, mau, mav);
-				tes.addVertexWithUV(1.5, -3, 1.5, mau, miv);
-				tes.addVertexWithUV(1.5, -3 - lh, 1.5, miu, mav);
-				tes.addVertexWithUV(1.5, -3 - lh, -1.5, mau, mav);
+				tes.addVertexWithUV(1.5, -3, -1.5, miu, miv);
+				tes.addVertexWithUV(1.5, -3, 1.5, mau, miv);            //correct
+				tes.addVertexWithUV(1.5, -3 - lh, 1.5, mau, mav);
+				tes.addVertexWithUV(1.5, -3 - lh, -1.5, miu, mav);
 
-				tes.addVertexWithUV(-1.5, -3 - lh, -1.5, mau, mav);
+				tes.addVertexWithUV(1.5, -3 - lh, 1.5, mau, mav);
 				tes.addVertexWithUV(-1.5, -3 - lh, 1.5, mau, miv);
-				tes.addVertexWithUV(1.5, -3 - lh, 1.5, miu, mav);
-				tes.addVertexWithUV(1.5, -3 - lh, -1.5, mau, mav);
+				tes.addVertexWithUV(-1.5, -3 - lh, -1.5, miu, miv);
+				tes.addVertexWithUV(1.5, -3 - lh, -1.5, miu, mav);
 			}
 			tes.draw();
+			GL11.glPopMatrix();
 		}
 	}
 
