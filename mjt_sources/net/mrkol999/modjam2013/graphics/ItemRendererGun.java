@@ -12,7 +12,7 @@ public class ItemRendererGun implements net.minecraftforge.client.IItemRenderer
 	@Override
 	public boolean handleRenderType(ItemStack item, ItemRenderType type)
 	{
-		return type == ItemRenderType.ENTITY || type == ItemRenderType.EQUIPPED || type == ItemRenderType.INVENTORY;
+		return true;
 	}
 
 	@Override
@@ -35,8 +35,19 @@ public class ItemRendererGun implements net.minecraftforge.client.IItemRenderer
 			{
 				GL11.glRotatef(90, 0, 1f, 0);
 				GL11.glTranslatef(0f, 0f, 0.4f);
-				GL11.glRotatef(15.5F, -1f, 0f, 0f);
+				GL11.glRotatef(15F, -1f, 0f, 0f);
+				GL11.glRotatef(16F, 0f, 0f, 1f);
+				GL11.glRotatef(10F, 0f, 1f, 0f);
+				GL11.glTranslatef(0f, 0.35f, 0f);
+				GL11.glTranslatef(0.1f, 0f, 0f);
 			}
+			
+			if(type == ItemRenderType.FIRST_PERSON_MAP)
+			{
+				GL11.glRotatef(90f, 0f, 1f, 0f);
+			}
+			
+			if(type == ItemRenderType.ENTITY)
 			
 			if(type == ItemRenderType.ENTITY)
 			{
