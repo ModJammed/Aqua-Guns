@@ -31,6 +31,13 @@ public class ItemRendererGun implements net.minecraftforge.client.IItemRenderer
 				GL11.glScalef(0.6F, 0.6F, 0.6F);
 			}
 			
+			if(type == ItemRenderType.EQUIPPED)
+			{
+				GL11.glRotatef(90, 0, 1f, 0);
+				GL11.glTranslatef(0f, 0f, 0.4f);
+				GL11.glRotatef(15.5F, -1f, 0f, 0f);
+			}
+			
 			if(type == ItemRenderType.ENTITY)
 			{
 				GL11.glTranslatef(0.0F, 0.25F, 0.0F);
