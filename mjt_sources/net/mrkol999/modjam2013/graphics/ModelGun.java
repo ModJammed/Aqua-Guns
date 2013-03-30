@@ -75,26 +75,27 @@ public class ModelGun extends ModelBase
 
 			GL11.glPushMatrix();
 			GL11.glScalef(1f/16f, 1f/16f, 1f/16f); 
+	        GL11.glDisable(GL11.GL_LIGHTING);
 			// without F it scales it down to 0, 0, 0. That's because it is trying to make 0.0625 an integer, and 0.0625 without .0625 is 0.
 			tes.startDrawingQuads(); // fine tessellation code
 			{
 				tes.addVertexWithUV(-1.5, -3, -1.5, mau, miv);
 				tes.addVertexWithUV(1.5, -3, -1.5, miu, miv);
-				tes.addVertexWithUV(1.5, -3 - lh, -1.5, miu, mav);      //correct
+				tes.addVertexWithUV(1.5, -3 - lh, -1.5, miu, mav);
 				tes.addVertexWithUV(-1.5, -3 - lh, -1.5, mau, mav);
 
 				tes.addVertexWithUV(-1.5, -3 - lh, 1.5, miu, mav);
-				tes.addVertexWithUV(-1.5, -3, 1.5, miu, miv);           //correct
+				tes.addVertexWithUV(-1.5, -3, 1.5, miu, miv);
 				tes.addVertexWithUV(-1.5, -3, -1.5, mau, miv);
 				tes.addVertexWithUV(-1.5, -3 - lh, -1.5, mau, mav);
 
 				tes.addVertexWithUV(1.5, -3 - lh, 1.5, mau, mav);
 				tes.addVertexWithUV(1.5, -3, 1.5, mau, miv);
-				tes.addVertexWithUV(-1.5, -3, 1.5, miu, miv);           //correct
+				tes.addVertexWithUV(-1.5, -3, 1.5, miu, miv);
 				tes.addVertexWithUV(-1.5, -3 - lh, 1.5, miu, mav);
 
 				tes.addVertexWithUV(1.5, -3, -1.5, miu, miv);
-				tes.addVertexWithUV(1.5, -3, 1.5, mau, miv);            //correct
+				tes.addVertexWithUV(1.5, -3, 1.5, mau, miv);
 				tes.addVertexWithUV(1.5, -3 - lh, 1.5, mau, mav);
 				tes.addVertexWithUV(1.5, -3 - lh, -1.5, miu, mav);
 
@@ -104,6 +105,7 @@ public class ModelGun extends ModelBase
 				tes.addVertexWithUV(1.5, -3 - lh, -1.5, miu, mav);
 			}
 			tes.draw();
+	        GL11.glEnable(GL11.GL_LIGHTING);
 			GL11.glPopMatrix();
 		}
 	}

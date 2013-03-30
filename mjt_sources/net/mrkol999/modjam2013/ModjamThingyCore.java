@@ -34,7 +34,7 @@ public class ModjamThingyCore
 	@Mod.Init
 	public void Init(FMLInitializationEvent e)
 	{
-		proxy.registerClientside(); //yaaaay
+		proxy.registerClientside();
 	}
 	
 	@Mod.PostInit

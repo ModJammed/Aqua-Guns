@@ -14,6 +14,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.liquids.IBlockLiquid;
 import net.minecraftforge.liquids.LiquidDictionary;
 import net.minecraftforge.liquids.LiquidStack;
+import net.mrkol999.modjam2013.entity.EntityLiquidBullet;
 
 public class ItemGun extends Item
 {
@@ -118,7 +119,7 @@ public class ItemGun extends Item
 		}
 		else
 		{
-			if(par3EntityPlayer.capabilities.isCreativeMode || currls.amount > 0)
+			if(par3EntityPlayer.capabilities.isCreativeMode || (currls != null && currls.amount > 0))
 			{
 				par3EntityPlayer.setItemInUse(par1ItemStack, this.getMaxItemUseDuration(par1ItemStack));
 			}
@@ -143,6 +144,29 @@ public class ItemGun extends Item
 				if(!flag) currls.amount--;
 				par3EntityPlayer.addChatMessage("PEW! The gun fires: " + currls.itemID + "; " + currls.amount + "; ");
 				// launch da liquid missile, pew.
+		        int j = this.getMaxItemUseDuration(par1ItemStack) - par4;
+	            float f = (float)j / 20.0F;
+	            f = (f * f + f * 2.0F) / 3.0F;
+
+	            if ((double)f < 0.1D)
+	            {
+	                return;
+	            }
+
+	            if (f > 1.0F)
+	            {
+	                f = 1.0F;
+	            }
+
+	            LiquidStack ls = currls.copy();
+	            ls.amount = 1;
+	            
+	            EntityLiquidBullet entityarrow = new EntityLiquidBullet(par2World, par3EntityPlayer, f * 2.0F, ls);
+	            
+	            if (!par2World.isRemote)
+	            {
+	                par2World.spawnEntityInWorld(entityarrow);
+	            }
 			}
 	
 			NBTTagCompound nbt = new NBTTagCompound();
