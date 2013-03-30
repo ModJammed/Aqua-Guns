@@ -18,5 +18,6 @@ public class ProxyClient extends ProxyCommon
 		super.registerClientside();
 		MinecraftForgeClient.registerItemRenderer(ModjamThingyCore.itemAquaGun.itemID, itemrendererGun);
 		RenderingRegistry.registerEntityRenderingHandler(net.mrkol999.modjam2013.entity.EntityLiquidBullet.class, renderLiquidBullet);
+		
 	}
 }

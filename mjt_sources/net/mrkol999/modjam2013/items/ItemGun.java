@@ -71,10 +71,10 @@ public class ItemGun extends Item
 		{
 			if(block != null && (block instanceof IBlockLiquid || block instanceof BlockFluid))
 			{
-				if(block instanceof IBlockLiquid) currls = LiquidDictionary.getLiquid(((IBlockLiquid)block).getLiquidProperties().getName(), 1000);
+				if(block instanceof IBlockLiquid) currls = LiquidDictionary.getLiquid(((IBlockLiquid)block).getLiquidProperties().getName(), 0);
 				else
 				{
-					currls = LiquidDictionary.getLiquid(block.blockID == Block.waterStill.blockID || block.blockID == Block.waterMoving.blockID ? "Water" : "Lava", 1000);
+					currls = LiquidDictionary.getLiquid(block.blockID == Block.waterStill.blockID || block.blockID == Block.waterMoving.blockID ? "Water" : "Lava", 0);
 				}
 				NBTTagCompound nbt = new NBTTagCompound();
 				
@@ -159,8 +159,6 @@ public class ItemGun extends Item
 			if(currls != null && (flag || currls.amount > 0)) // if gamemode is creative, or if we still have any liquid left...
 			{
 				if(!flag) currls.amount--;
-				par3EntityPlayer.addChatMessage("PEW! The gun fires: " + currls.itemID + "; " + currls.amount + "; ");
-				// launch da liquid missile, pew.
 				
 		        int j = this.getMaxItemUseDuration(par1ItemStack) - par4;
 	            float f = (float)j / 20.0F;

@@ -4,8 +4,9 @@ import org.lwjgl.opengl.GL11;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.src.ModLoader;
+import net.minecraftforge.client.IItemRenderer;
 
-public class ItemRendererGun implements net.minecraftforge.client.IItemRenderer
+public class ItemRendererGun implements IItemRenderer
 {
 	public ModelGun model = new ModelGun();
 	
@@ -40,6 +41,16 @@ public class ItemRendererGun implements net.minecraftforge.client.IItemRenderer
 				GL11.glRotatef(10F, 0f, 1f, 0f);
 				GL11.glTranslatef(0f, 0.35f, 0f);
 				GL11.glTranslatef(0.1f, 0f, 0f);
+				
+				if(ModLoader.getMinecraftInstance().thePlayer.inventory.getCurrentItem() == item && ModLoader.getMinecraftInstance().gameSettings.thirdPersonView == 0)
+				{
+					GL11.glRotatef(45f, 0f, 1f, 0f);
+					if(ModLoader.getMinecraftInstance().thePlayer.getItemInUseCount()> 0)
+					{
+						GL11.glRotatef(45f, 0f, 1f, 0f);
+						GL11.glRotatef(30f, 0f, 0f, -1f);
+					}
+				}
 			}
 			
 			if(type == ItemRenderType.FIRST_PERSON_MAP)

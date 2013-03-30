@@ -2,6 +2,7 @@ package net.mrkol999.modjam2013.entity;
 
 import java.util.List;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFluid;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.IProjectile;
@@ -16,6 +17,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.liquids.IBlockLiquid;
 import net.minecraftforge.liquids.LiquidStack;
 
 public class EntityLiquidBullet extends Entity implements IProjectile
@@ -26,12 +28,46 @@ public class EntityLiquidBullet extends Entity implements IProjectile
 	private int ticksInAir = 0;
 	private double damage = 0;
 	private int knockbackStrength;
+	public byte[] particleRGB = new byte[3];
 
 	public EntityLiquidBullet(World par1World)
 	{
 		super(par1World);
 		this.renderDistanceWeight = 10.0D;
 		this.setSize(0.5F, 0.5F);
+		Block b = null;
+		try
+		{
+			b = (Block.blocksList[(LiquidStack.loadLiquidStackFromNBT((NBTTagCompound) ModLoader.getMinecraftInstance().thePlayer.inventory.getCurrentItem().getTagCompound().getTag("LiquidData")).itemID)]);
+		}
+		catch(Exception e)
+		{
+			b = Block.waterStill;
+		}
+		if(b instanceof IBlockLiquid)
+		{
+			this.particleRGB[0] = ((IBlockLiquid)b).getLiquidRGB()[0];
+			this.particleRGB[1] = ((IBlockLiquid)b).getLiquidRGB()[1];
+			this.particleRGB[2] = ((IBlockLiquid)b).getLiquidRGB()[2];
+		}
+		else
+		if(b instanceof BlockFluid)
+		{
+			if(b.blockID == 8 || b.blockID == 9)
+			{
+				this.particleRGB[0] = 50;
+				this.particleRGB[1] = 50;
+				this.particleRGB[2] = (byte) 255;
+				
+			}
+			else
+			if(b.blockID == 10 || b.blockID == 11)
+			{
+				this.particleRGB[0] = (byte) 255;
+				this.particleRGB[1] = 120;
+				this.particleRGB[2] = 50;
+			}
+		}
 	}
 
 	public EntityLiquidBullet(World par1World, double par2, double par4, double par6, LiquidStack ls)
@@ -419,6 +455,7 @@ public class EntityLiquidBullet extends Entity implements IProjectile
 	{
 		par1NBTTagCompound.setByte("inGround", (byte) (this.inGround ? 1 : 0));
 		par1NBTTagCompound.setDouble("damage", this.damage);
+		par1NBTTagCompound.setByteArray("particleRGB", this.particleRGB);
 		NBTTagCompound ldata = new NBTTagCompound();
 		
 		this.liquidStored.writeToNBT(ldata);
@@ -432,6 +469,7 @@ public class EntityLiquidBullet extends Entity implements IProjectile
 	public void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
 	{
 		this.inGround = par1NBTTagCompound.getByte("inGround") == 1;
+		this.particleRGB = par1NBTTagCompound.getByteArray("particleRGB");
 
 		if(par1NBTTagCompound.hasKey("damage"))
 		{
