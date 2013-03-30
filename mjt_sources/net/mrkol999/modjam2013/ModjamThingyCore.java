@@ -8,6 +8,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
 @Mod(modid = "mrkol999_ModJamThingy2013", name = "Modjam Thingy")
@@ -28,13 +29,14 @@ public class ModjamThingyCore
 	@Mod.PreInit
 	public void PreInit(FMLPreInitializationEvent e)
 	{
+		EntityRegistry.registerModEntity(net.mrkol999.modjam2013.entity.EntityLiquidBullet.class, "EntityLiquidBullet", 99, this, 99, 1, true);
 		this.loadLocalizations();
+		proxy.registerClientside();
 	}
 	
 	@Mod.Init
 	public void Init(FMLInitializationEvent e)
 	{
-		proxy.registerClientside();
 	}
 	
 	@Mod.PostInit

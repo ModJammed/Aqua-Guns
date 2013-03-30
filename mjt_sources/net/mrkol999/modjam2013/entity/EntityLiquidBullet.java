@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet70GameEvent;
+import net.minecraft.src.ModLoader;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
@@ -26,12 +27,11 @@ public class EntityLiquidBullet extends Entity implements IProjectile
 	private double damage = 0;
 	private int knockbackStrength;
 
-	public EntityLiquidBullet(World par1World, LiquidStack ls)
+	public EntityLiquidBullet(World par1World)
 	{
 		super(par1World);
 		this.renderDistanceWeight = 10.0D;
 		this.setSize(0.5F, 0.5F);
-		this.liquidStored = ls;
 	}
 
 	public EntityLiquidBullet(World par1World, double par2, double par4, double par6, LiquidStack ls)
@@ -146,259 +146,269 @@ public class EntityLiquidBullet extends Entity implements IProjectile
 	{
 		super.onUpdate();
 		
-		switch(this.liquidStored.itemID)
+		try
 		{
-			case 8:
-			case 9:
-				this.damage = 0.5D;
-				break;
-
-			case 10:
-			case 11:
-				this.damage = 2.0D;
-				break;
-		}
-
-		if(this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F)
-		{
-			float f = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
-			this.prevRotationYaw = this.rotationYaw = (float) (Math.atan2(this.motionX, this.motionZ) * 180.0D / Math.PI);
-			this.prevRotationPitch = this.rotationPitch = (float) (Math.atan2(this.motionY, (double) f) * 180.0D / Math.PI);
-		}
-
-		if(this.inGround)
-		{
-			this.setDead(); // we die as soon, as we hit a block's bounding box
-		}
-		else
-		{
-			++this.ticksInAir;
-			Vec3 vec3 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX, this.posY, this.posZ);
-			Vec3 vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX + this.motionX, this.posY + this.motionY,
-					this.posZ + this.motionZ);
-			MovingObjectPosition movingobjectposition = this.worldObj.rayTraceBlocks_do_do(vec3, vec31, false, true);
-			vec3 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX, this.posY, this.posZ);
-			vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX + this.motionX, this.posY + this.motionY,
-					this.posZ + this.motionZ);
-
-			if(movingobjectposition != null)
+			if(!this.worldObj.isRemote) 
 			{
-				vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(movingobjectposition.hitVec.xCoord,
-						movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
-			}
-
-			Entity entity = null;
-			@SuppressWarnings("rawtypes")
-			List list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this,
-					this.boundingBox.addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
-			double d0 = 0.0D;
-			int l;
-			float f1;
-
-			for(l = 0; l < list.size(); ++l)
-			{
-				Entity entity1 = (Entity) list.get(l);
-
-				if(entity1.canBeCollidedWith() && (entity1 != this.shootingEntity || this.ticksInAir >= 5))
+				switch(this.liquidStored.itemID)
 				{
-					f1 = 0.3F;
-					AxisAlignedBB axisalignedbb1 = entity1.boundingBox.expand((double) f1, (double) f1, (double) f1);
-					MovingObjectPosition movingobjectposition1 = axisalignedbb1.calculateIntercept(vec3, vec31);
-
-					if(movingobjectposition1 != null)
-					{
-						double d1 = vec3.distanceTo(movingobjectposition1.hitVec);
-
-						if(d1 < d0 || d0 == 0.0D)
-						{
-							entity = entity1;
-							d0 = d1;
-						}
-					}
+					case 8:
+					case 9:
+						this.damage = 0.5D;
+						break;
+		
+					case 10:
+					case 11:
+						this.damage = 2.0D;
+						break;
 				}
-			}
-
-			if(entity != null)
-			{
-				movingobjectposition = new MovingObjectPosition(entity);
-			}
-
-			if(movingobjectposition != null && movingobjectposition.entityHit != null
-					&& movingobjectposition.entityHit instanceof EntityPlayer)
-			{
-				EntityPlayer entityplayer = (EntityPlayer) movingobjectposition.entityHit;
-
-				if(entityplayer.capabilities.disableDamage || this.shootingEntity instanceof EntityPlayer
-						&& !((EntityPlayer) this.shootingEntity).func_96122_a(entityplayer))
+		
+				if(this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F)
 				{
-					movingobjectposition = null;
+					float f = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
+					this.prevRotationYaw = this.rotationYaw = (float) (Math.atan2(this.motionX, this.motionZ) * 180.0D / Math.PI);
+					this.prevRotationPitch = this.rotationPitch = (float) (Math.atan2(this.motionY, (double) f) * 180.0D / Math.PI);
 				}
-			}
-
-			float f2;
-			float f3;
-
-			if(movingobjectposition != null)
-			{
-				if(movingobjectposition.entityHit != null)
+		
+				if(this.inGround)
 				{
-					f2 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ
-							* this.motionZ);
-					int i1 = MathHelper.ceiling_double_int((double) f2 * this.damage);
-
-					DamageSource damagesource = null;
-
-					if(this.shootingEntity == null)
-					{
-						damagesource = DamageSource.causeThrownDamage(this, this);
-					}
-					else
-					{
-						damagesource = DamageSource.causeThrownDamage(this, this.shootingEntity);
-					}
-
-					if(movingobjectposition.entityHit.attackEntityFrom(damagesource, i1))
-					{
-						if(movingobjectposition.entityHit instanceof EntityLiving)
-						{
-							EntityLiving entityliving = (EntityLiving) movingobjectposition.entityHit;
-
-							if(!this.worldObj.isRemote)
-							{
-								entityliving.setArrowCountInEntity(entityliving.getArrowCountInEntity() + 1);
-							}
-
-							if(this.knockbackStrength > 0)
-							{
-								f3 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
-
-								if(f3 > 0.0F)
-								{
-									movingobjectposition.entityHit.addVelocity(this.motionX * (double) this.knockbackStrength
-											* 0.6000000238418579D / (double) f3, 0.1D, this.motionZ
-											* (double) this.knockbackStrength * 0.6000000238418579D / (double) f3);
-								}
-							}
-
-							if(this.shootingEntity != null && movingobjectposition.entityHit != this.shootingEntity
-									&& movingobjectposition.entityHit instanceof EntityPlayer
-									&& this.shootingEntity instanceof EntityPlayerMP)
-							{
-								((EntityPlayerMP) this.shootingEntity).playerNetServerHandler
-										.sendPacketToPlayer(new Packet70GameEvent(6, 0));
-							}
-						}
-
-						this.setDead();
-
-						switch(this.liquidStored.itemID)
-						// liquid type switch. If we shoot lava, make entity
-						// burn
-						{
-							case 9:
-							case 8:
-								movingobjectposition.entityHit.extinguish();
-								break;
-
-							case 10:
-							case 11:
-								movingobjectposition.entityHit.setFire(5);
-								break;
-						}
-					}
-					else
-					{
-						this.motionX *= -0.10000000149011612D;
-						this.motionY *= -0.10000000149011612D;
-						this.motionZ *= -0.10000000149011612D;
-						this.rotationYaw += 180.0F;
-						this.prevRotationYaw += 180.0F;
-						this.ticksInAir = 0;
-					}
+					this.setDead(); // we die as soon, as we hit a block's bounding box
 				}
 				else
 				{
-					this.inGround = true;
-					int bid = this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY,
-							movingobjectposition.blockZ);
-					switch(this.liquidStored.itemID)
-					// no forge liquid dictionary liquids will have effects :C
+					++this.ticksInAir;
+					Vec3 vec3 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX, this.posY, this.posZ);
+					Vec3 vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX + this.motionX, this.posY + this.motionY,
+							this.posZ + this.motionZ);
+					MovingObjectPosition movingobjectposition = this.worldObj.rayTraceBlocks_do_do(vec3, vec31, false, true);
+					vec3 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX, this.posY, this.posZ);
+					vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX + this.motionX, this.posY + this.motionY,
+							this.posZ + this.motionZ);
+		
+					if(movingobjectposition != null)
 					{
-						case 9:
-						case 8:
-							if(this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY + 1,	movingobjectposition.blockZ) == Block.fire.blockID)
-							{
-								this.worldObj.setBlock(movingobjectposition.blockX, movingobjectposition.blockY + 1,
-										movingobjectposition.blockZ, 0);
-							}							
-							break;
-
-						case 10:
-						case 11:
-							if(bid == Block.sand.blockID)
-							{
-								this.worldObj.setBlock(movingobjectposition.blockX, movingobjectposition.blockY,
-										movingobjectposition.blockZ, Block.glass.blockID);
-							}
-							if(this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY + 1,	movingobjectposition.blockZ) == 0)
-							{
-								this.worldObj.setBlock(movingobjectposition.blockX, movingobjectposition.blockY + 1, movingobjectposition.blockZ, Block.fire.blockID);
-							}
-							break;
+						vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(movingobjectposition.hitVec.xCoord,
+								movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
 					}
+		
+					Entity entity = null;
+					@SuppressWarnings("rawtypes")
+					List list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this,
+							this.boundingBox.addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
+					double d0 = 0.0D;
+					int l;
+					float f1;
+		
+					for(l = 0; l < list.size(); ++l)
+					{
+						Entity entity1 = (Entity) list.get(l);
+		
+						if(entity1.canBeCollidedWith() && (entity1 != this.shootingEntity || this.ticksInAir >= 5))
+						{
+							f1 = 0.3F;
+							AxisAlignedBB axisalignedbb1 = entity1.boundingBox.expand((double) f1, (double) f1, (double) f1);
+							MovingObjectPosition movingobjectposition1 = axisalignedbb1.calculateIntercept(vec3, vec31);
+		
+							if(movingobjectposition1 != null)
+							{
+								double d1 = vec3.distanceTo(movingobjectposition1.hitVec);
+		
+								if(d1 < d0 || d0 == 0.0D)
+								{
+									entity = entity1;
+									d0 = d1;
+								}
+							}
+						}
+					}
+		
+					if(entity != null)
+					{
+						movingobjectposition = new MovingObjectPosition(entity);
+					}
+		
+					if(movingobjectposition != null && movingobjectposition.entityHit != null
+							&& movingobjectposition.entityHit instanceof EntityPlayer)
+					{
+						EntityPlayer entityplayer = (EntityPlayer) movingobjectposition.entityHit;
+		
+						if(entityplayer.capabilities.disableDamage || this.shootingEntity instanceof EntityPlayer
+								&& !((EntityPlayer) this.shootingEntity).func_96122_a(entityplayer))
+						{
+							movingobjectposition = null;
+						}
+					}
+		
+					float f2;
+					float f3;
+		
+					if(movingobjectposition != null)
+					{
+						if(movingobjectposition.entityHit != null)
+						{
+							f2 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ
+									* this.motionZ);
+							int i1 = MathHelper.ceiling_double_int((double) f2 * this.damage);
+		
+							DamageSource damagesource = null;
+		
+							if(this.shootingEntity == null)
+							{
+								damagesource = DamageSource.causeThrownDamage(this, this);
+							}
+							else
+							{
+								damagesource = DamageSource.causeThrownDamage(this, this.shootingEntity);
+							}
+		
+							if(movingobjectposition.entityHit.attackEntityFrom(damagesource, i1))
+							{
+								if(movingobjectposition.entityHit instanceof EntityLiving)
+								{
+									EntityLiving entityliving = (EntityLiving) movingobjectposition.entityHit;
+		
+									if(!this.worldObj.isRemote)
+									{
+										entityliving.setArrowCountInEntity(entityliving.getArrowCountInEntity() + 1);
+									}
+		
+									if(this.knockbackStrength > 0)
+									{
+										f3 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
+		
+										if(f3 > 0.0F)
+										{
+											movingobjectposition.entityHit.addVelocity(this.motionX * (double) this.knockbackStrength
+													* 0.6000000238418579D / (double) f3, 0.1D, this.motionZ
+													* (double) this.knockbackStrength * 0.6000000238418579D / (double) f3);
+										}
+									}
+		
+									if(this.shootingEntity != null && movingobjectposition.entityHit != this.shootingEntity
+											&& movingobjectposition.entityHit instanceof EntityPlayer
+											&& this.shootingEntity instanceof EntityPlayerMP)
+									{
+										((EntityPlayerMP) this.shootingEntity).playerNetServerHandler
+												.sendPacketToPlayer(new Packet70GameEvent(6, 0));
+									}
+								}
+		
+								this.setDead();
+		
+								switch(this.liquidStored.itemID)
+								// liquid type switch. If we shoot lava, make entity
+								// burn
+								{
+									case 9:
+									case 8:
+										movingobjectposition.entityHit.extinguish();
+										break;
+		
+									case 10:
+									case 11:
+										movingobjectposition.entityHit.setFire(5);
+										break;
+								}
+							}
+							else
+							{
+								this.motionX *= -0.10000000149011612D;
+								this.motionY *= -0.10000000149011612D;
+								this.motionZ *= -0.10000000149011612D;
+								this.rotationYaw += 180.0F;
+								this.prevRotationYaw += 180.0F;
+								this.ticksInAir = 0;
+							}
+						}
+						else
+						{
+							this.inGround = true;
+							int bid = this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY,
+									movingobjectposition.blockZ);
+							switch(this.liquidStored.itemID)
+							// no forge liquid dictionary liquids will have effects :C
+							{
+								case 9:
+								case 8:
+									if(this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY + 1,	movingobjectposition.blockZ) == Block.fire.blockID)
+									{
+										this.worldObj.setBlock(movingobjectposition.blockX, movingobjectposition.blockY + 1,
+												movingobjectposition.blockZ, 0);
+									}							
+									break;
+		
+								case 10:
+								case 11:
+									if(bid == Block.sand.blockID)
+									{
+										this.worldObj.setBlock(movingobjectposition.blockX, movingobjectposition.blockY,
+												movingobjectposition.blockZ, Block.glass.blockID);
+									}
+									if(this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY + 1,	movingobjectposition.blockZ) == 0)
+									{
+										this.worldObj.setBlock(movingobjectposition.blockX, movingobjectposition.blockY + 1, movingobjectposition.blockZ, Block.fire.blockID);
+									}
+									break;
+							}
+						}
+					}
+		
+					this.posX += this.motionX;
+					this.posY += this.motionY;
+					this.posZ += this.motionZ;
+					f2 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
+					this.rotationYaw = (float) (Math.atan2(this.motionX, this.motionZ) * 180.0D / Math.PI);
+		
+					for(this.rotationPitch = (float) (Math.atan2(this.motionY, (double) f2) * 180.0D / Math.PI); this.rotationPitch
+							- this.prevRotationPitch < -180.0F; this.prevRotationPitch -= 360.0F)
+					{
+						;
+					}
+		
+					while(this.rotationPitch - this.prevRotationPitch >= 180.0F)
+					{
+						this.prevRotationPitch += 360.0F;
+					}
+		
+					while(this.rotationYaw - this.prevRotationYaw < -180.0F)
+					{
+						this.prevRotationYaw -= 360.0F;
+					}
+		
+					while(this.rotationYaw - this.prevRotationYaw >= 180.0F)
+					{
+						this.prevRotationYaw += 360.0F;
+					}
+		
+					this.rotationPitch = this.prevRotationPitch + (this.rotationPitch - this.prevRotationPitch) * 0.2F;
+					this.rotationYaw = this.prevRotationYaw + (this.rotationYaw - this.prevRotationYaw) * 0.2F;
+					float f4 = 0.99F;
+					f1 = 0.05F;
+		
+					if(this.isInWater())
+					{
+						for(int j1 = 0; j1 < 4; ++j1)
+						{
+							f3 = 0.25F;
+							this.worldObj.spawnParticle("bubble", this.posX - this.motionX * (double) f3, this.posY - this.motionY
+									* (double) f3, this.posZ - this.motionZ * (double) f3, this.motionX, this.motionY, this.motionZ);
+						}
+		
+						f4 = 0.8F;
+					}
+		
+					this.motionX *= (double) f4;
+					this.motionY *= (double) f4;
+					this.motionZ *= (double) f4;
+					this.motionY -= (double) f1;
+					this.setPosition(this.posX, this.posY, this.posZ);
+					this.doBlockCollisions();
 				}
 			}
-
-			this.posX += this.motionX;
-			this.posY += this.motionY;
-			this.posZ += this.motionZ;
-			f2 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
-			this.rotationYaw = (float) (Math.atan2(this.motionX, this.motionZ) * 180.0D / Math.PI);
-
-			for(this.rotationPitch = (float) (Math.atan2(this.motionY, (double) f2) * 180.0D / Math.PI); this.rotationPitch
-					- this.prevRotationPitch < -180.0F; this.prevRotationPitch -= 360.0F)
-			{
-				;
-			}
-
-			while(this.rotationPitch - this.prevRotationPitch >= 180.0F)
-			{
-				this.prevRotationPitch += 360.0F;
-			}
-
-			while(this.rotationYaw - this.prevRotationYaw < -180.0F)
-			{
-				this.prevRotationYaw -= 360.0F;
-			}
-
-			while(this.rotationYaw - this.prevRotationYaw >= 180.0F)
-			{
-				this.prevRotationYaw += 360.0F;
-			}
-
-			this.rotationPitch = this.prevRotationPitch + (this.rotationPitch - this.prevRotationPitch) * 0.2F;
-			this.rotationYaw = this.prevRotationYaw + (this.rotationYaw - this.prevRotationYaw) * 0.2F;
-			float f4 = 0.99F;
-			f1 = 0.05F;
-
-			if(this.isInWater())
-			{
-				for(int j1 = 0; j1 < 4; ++j1)
-				{
-					f3 = 0.25F;
-					this.worldObj.spawnParticle("bubble", this.posX - this.motionX * (double) f3, this.posY - this.motionY
-							* (double) f3, this.posZ - this.motionZ * (double) f3, this.motionX, this.motionY, this.motionZ);
-				}
-
-				f4 = 0.8F;
-			}
-
-			this.motionX *= (double) f4;
-			this.motionY *= (double) f4;
-			this.motionZ *= (double) f4;
-			this.motionY -= (double) f1;
-			this.setPosition(this.posX, this.posY, this.posZ);
-			this.doBlockCollisions();
+		}
+		catch(Exception e)
+		{
+			ModLoader.getMinecraftInstance().thePlayer.addChatMessage("ERROR");
 		}
 	}
 
@@ -409,6 +419,11 @@ public class EntityLiquidBullet extends Entity implements IProjectile
 	{
 		par1NBTTagCompound.setByte("inGround", (byte) (this.inGround ? 1 : 0));
 		par1NBTTagCompound.setDouble("damage", this.damage);
+		NBTTagCompound ldata = new NBTTagCompound();
+		
+		this.liquidStored.writeToNBT(ldata);
+		
+		par1NBTTagCompound.setTag("LiquidData", ldata);
 	}
 
 	/**
@@ -422,6 +437,8 @@ public class EntityLiquidBullet extends Entity implements IProjectile
 		{
 			this.damage = par1NBTTagCompound.getDouble("damage");
 		}
+		
+		this.liquidStored = LiquidStack.loadLiquidStackFromNBT((NBTTagCompound) par1NBTTagCompound.getTag("LiquidData"));
 	}
 
 	protected boolean canTriggerWalking()
