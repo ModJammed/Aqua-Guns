@@ -359,30 +359,40 @@ public class EntityLiquidBullet extends Entity implements IProjectile
 						else
 						{
 							this.inGround = true;
-							int bid = this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY,
-									movingobjectposition.blockZ);
+							int bx = movingobjectposition.blockX + ((movingobjectposition.sideHit == 5) ? 1 : ((movingobjectposition.sideHit == 4) ? -1 : 0));
+							int by = movingobjectposition.blockY + ((movingobjectposition.sideHit == 1) ? 1 : ((movingobjectposition.sideHit == 0) ? -1 : 0));
+							int bz = movingobjectposition.blockZ + ((movingobjectposition.sideHit == 3) ? 1 : ((movingobjectposition.sideHit == 2) ? -1 : 0));
+							int bid = this.worldObj.getBlockId(bx, by, bz);
+							
+							
 							switch(this.liquidStored.itemID)
 							// no forge liquid dictionary liquids will have effects :C
 							{
 								case 9:
 								case 8:
-									if(this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY + 1,	movingobjectposition.blockZ) == Block.fire.blockID)
+									if(bid == Block.fire.blockID)
 									{
-										this.worldObj.setBlock(movingobjectposition.blockX, movingobjectposition.blockY + 1,
-												movingobjectposition.blockZ, 0);
-									}							
+										this.worldObj.setBlock(bx, by, bz, 0);
+									}
+									if(this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY, movingobjectposition.blockZ) == Block.lavaStill.blockID)
+									{
+										this.worldObj.setBlock(movingobjectposition.blockX, movingobjectposition.blockY, movingobjectposition.blockZ, Block.obsidian.blockID);
+									}
+									if(this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY, movingobjectposition.blockZ) == Block.lavaMoving.blockID)
+									{
+										this.worldObj.setBlock(movingobjectposition.blockX, movingobjectposition.blockY, movingobjectposition.blockZ, Block.cobblestone.blockID);
+									}
 									break;
 		
 								case 10:
 								case 11:
 									if(bid == Block.sand.blockID)
 									{
-										this.worldObj.setBlock(movingobjectposition.blockX, movingobjectposition.blockY,
-												movingobjectposition.blockZ, Block.glass.blockID);
+										this.worldObj.setBlock(bx, by, bz, Block.glass.blockID);
 									}
-									if(this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY + 1,	movingobjectposition.blockZ) == 0)
+									if(bid == 0 || bid == Block.vine.blockID || bid == Block.grass.blockID)
 									{
-										this.worldObj.setBlock(movingobjectposition.blockX, movingobjectposition.blockY + 1, movingobjectposition.blockZ, Block.fire.blockID);
+										this.worldObj.setBlock(bx, by, bz, Block.fire.blockID);
 									}
 									break;
 							}
