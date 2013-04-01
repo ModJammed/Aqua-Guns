@@ -138,7 +138,7 @@ public class EntityLiquidBullet extends Entity implements IProjectile
 
 			case 10:
 			case 11:
-				this.damage *= 1.0D;
+				this.damage *= 2.0D;
 				break;
 		}
 	}
@@ -300,55 +300,58 @@ public class EntityLiquidBullet extends Entity implements IProjectile
 							damagesource = DamageSource.causeThrownDamage(this, this.shootingEntity);
 						}
 
-						if(movingobjectposition.entityHit.attackEntityFrom(damagesource, i1))
+						if(!this.worldObj.isRemote)
 						{
-							if(movingobjectposition.entityHit instanceof EntityLiving)
+							if(movingobjectposition.entityHit.attackEntityFrom(damagesource, i1))
 							{
-								EntityLiving entityliving = (EntityLiving) movingobjectposition.entityHit;
-
-								if(!this.worldObj.isRemote)
+								if(movingobjectposition.entityHit instanceof EntityLiving)
 								{
-									entityliving.setArrowCountInEntity(entityliving.getArrowCountInEntity() + 1);
-								}
-
-								if(this.knockbackStrength > 0)
-								{
-									f3 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
-
-									if(f3 > 0.0F)
+									EntityLiving entityliving = (EntityLiving) movingobjectposition.entityHit;
+	
+									if(!this.worldObj.isRemote)
 									{
-										movingobjectposition.entityHit.addVelocity(this.motionX
-												* (double) this.knockbackStrength * 0.6000000238418579D / (double) f3, 0.1D,
-												this.motionZ * (double) this.knockbackStrength * 0.6000000238418579D
-														/ (double) f3);
+										entityliving.setArrowCountInEntity(entityliving.getArrowCountInEntity() + 1);
+									}
+	
+									if(this.knockbackStrength > 0)
+									{
+										f3 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
+	
+										if(f3 > 0.0F)
+										{
+											movingobjectposition.entityHit.addVelocity(this.motionX
+													* (double) this.knockbackStrength * 0.6000000238418579D / (double) f3, 0.1D,
+													this.motionZ * (double) this.knockbackStrength * 0.6000000238418579D
+															/ (double) f3);
+										}
+									}
+	
+									if(this.shootingEntity != null && movingobjectposition.entityHit != this.shootingEntity
+											&& movingobjectposition.entityHit instanceof EntityPlayer
+											&& this.shootingEntity instanceof EntityPlayerMP)
+									{
+										((EntityPlayerMP) this.shootingEntity).playerNetServerHandler
+												.sendPacketToPlayer(new Packet70GameEvent(6, 0));
 									}
 								}
-
-								if(this.shootingEntity != null && movingobjectposition.entityHit != this.shootingEntity
-										&& movingobjectposition.entityHit instanceof EntityPlayer
-										&& this.shootingEntity instanceof EntityPlayerMP)
+	
+								this.setDead();
+	
+								switch(this.dataWatcher.getWatchableObjectInt(16))
+								// liquid type switch. If we shoot lava, make
+								// entity
+								// burn
 								{
-									((EntityPlayerMP) this.shootingEntity).playerNetServerHandler
-											.sendPacketToPlayer(new Packet70GameEvent(6, 0));
+									case 9:
+									case 8:
+										movingobjectposition.entityHit.extinguish();
+										break;
+	
+									case 10:
+									case 11:
+										movingobjectposition.entityHit.setFire(5);
+										break;
 								}
-							}
-
-							this.setDead();
-
-							switch(this.dataWatcher.getWatchableObjectInt(16))
-							// liquid type switch. If we shoot lava, make
-							// entity
-							// burn
-							{
-								case 9:
-								case 8:
-									movingobjectposition.entityHit.extinguish();
-									break;
-
-								case 10:
-								case 11:
-									movingobjectposition.entityHit.setFire(5);
-									break;
 							}
 						}
 						else
@@ -364,48 +367,52 @@ public class EntityLiquidBullet extends Entity implements IProjectile
 					else
 					{
 						this.inGround = true;
-						int bx = movingobjectposition.blockX
-								+ ((movingobjectposition.sideHit == 5) ? 1 : ((movingobjectposition.sideHit == 4) ? -1 : 0));
-						int by = movingobjectposition.blockY
-								+ ((movingobjectposition.sideHit == 1) ? 1 : ((movingobjectposition.sideHit == 0) ? -1 : 0));
-						int bz = movingobjectposition.blockZ
-								+ ((movingobjectposition.sideHit == 3) ? 1 : ((movingobjectposition.sideHit == 2) ? -1 : 0));
-						int bid = this.worldObj.getBlockId(bx, by, bz);
-
-						switch(this.dataWatcher.getWatchableObjectInt(16))
-						// no forge liquid dictionary liquids will have
-						// effects :C
+						
+						if(!this.worldObj.isRemote)
 						{
-							case 9:
-							case 8:
-								if(bid == Block.fire.blockID)
-								{
-									this.worldObj.setBlock(bx, by, bz, 0);
-									if(!this.worldObj.isRemote)
-										this.worldObj
-												.playSoundEffect(
-														(double) ((float) bx + 0.5F),
-														(double) ((float) by + 0.5F),
-														(double) ((float) bz + 0.5F),
-														"random.fizz",
-														0.5F,
-														2.6F + (this.worldObj.rand.nextFloat() - this.worldObj.rand.nextFloat()) * 0.8F);
-								}
-								break;
-
-							case 10:
-							case 11:
-								if(this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY,
-										movingobjectposition.blockZ) == Block.sand.blockID)
-								{
-									this.worldObj.setBlock(movingobjectposition.blockX, movingobjectposition.blockY,
-											movingobjectposition.blockZ, Block.glass.blockID);
-								}
-								if(bid == 0 || bid == Block.vine.blockID || bid == Block.grass.blockID)
-								{
-									this.worldObj.setBlock(bx, by, bz, Block.fire.blockID);
-								}
-								break;
+							int bx = movingobjectposition.blockX
+									+ ((movingobjectposition.sideHit == 5) ? 1 : ((movingobjectposition.sideHit == 4) ? -1 : 0));
+							int by = movingobjectposition.blockY
+									+ ((movingobjectposition.sideHit == 1) ? 1 : ((movingobjectposition.sideHit == 0) ? -1 : 0));
+							int bz = movingobjectposition.blockZ
+									+ ((movingobjectposition.sideHit == 3) ? 1 : ((movingobjectposition.sideHit == 2) ? -1 : 0));
+							int bid = this.worldObj.getBlockId(bx, by, bz);
+	
+							switch(this.dataWatcher.getWatchableObjectInt(16))
+							// no forge liquid dictionary liquids will have
+							// effects :C
+							{
+								case 9:
+								case 8:
+									if(bid == Block.fire.blockID)
+									{
+										this.worldObj.setBlock(bx, by, bz, 0);
+										if(!this.worldObj.isRemote)
+											this.worldObj
+													.playSoundEffect(
+															(double) ((float) bx + 0.5F),
+															(double) ((float) by + 0.5F),
+															(double) ((float) bz + 0.5F),
+															"random.fizz",
+															0.5F,
+															2.6F + (this.worldObj.rand.nextFloat() - this.worldObj.rand.nextFloat()) * 0.8F);
+									}
+									break;
+	
+								case 10:
+								case 11:
+									if(this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY,
+											movingobjectposition.blockZ) == Block.sand.blockID)
+									{
+										this.worldObj.setBlock(movingobjectposition.blockX, movingobjectposition.blockY,
+												movingobjectposition.blockZ, Block.glass.blockID);
+									}
+									if(bid == 0 || bid == Block.vine.blockID || bid == Block.grass.blockID)
+									{
+										this.worldObj.setBlock(bx, by, bz, Block.fire.blockID);
+									}
+									break;
+							}
 						}
 					}
 				}
@@ -442,19 +449,6 @@ public class EntityLiquidBullet extends Entity implements IProjectile
 				float f4 = 0.99F;
 				f1 = 0.05F;
 
-				if(this.isInWater())
-				{
-					for(int j1 = 0; j1 < 4; ++j1)
-					{
-						f3 = 0.25F;
-						this.worldObj
-								.spawnParticle("bubble", this.posX - this.motionX * (double) f3, this.posY - this.motionY
-										* (double) f3, this.posZ - this.motionZ * (double) f3, this.motionX, this.motionY,
-										this.motionZ);
-					}
-
-					f4 = 0.8F;
-				}
 
 				this.motionX *= (double) f4;
 				this.motionY *= (double) f4;
@@ -462,6 +456,19 @@ public class EntityLiquidBullet extends Entity implements IProjectile
 				this.motionY -= (double) f1;
 				this.setPosition(this.posX, this.posY, this.posZ);
 				this.doBlockCollisions();
+				
+				{
+					for(int j1 = 0; j1 < 4; ++j1)
+					{
+						f3 = 0.25F;
+						this.worldObj
+								.spawnParticle("smoke", this.posX - this.motionX * (double) f3, this.posY - this.motionY
+										* (double) f3, this.posZ - this.motionZ * (double) f3, this.motionX, this.motionY,
+										this.motionZ);
+					}
+
+					f4 = 0.8F;
+				}
 			}
 		}
 		// if(!this.worldObj.isRemote)

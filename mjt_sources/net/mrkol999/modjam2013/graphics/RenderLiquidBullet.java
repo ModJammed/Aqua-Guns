@@ -19,7 +19,7 @@ public class RenderLiquidBullet extends Render
 			{
 				int liid = ((EntityLiquidBullet)entity).getLiquidItemID();
 				byte[] c = ((IBlockLiquid)Block.blocksList[liid]).getLiquidRGB();
-				EntityColoredSmokeFX efx = new EntityColoredSmokeFX(entity.worldObj, d0, d1, d2, 0, 0, 0, c[0], c[1], c[2]);
+				EntityColoredSmokeFX efx = new EntityColoredSmokeFX(entity.worldObj, d0, d1, d2, 0, 0, 0, c[0] / 255f, c[1] / 255f, c[2] / 255f);
 				ModLoader.getMinecraftInstance().effectRenderer.addEffect(efx);
 			}
 			catch(Exception e)

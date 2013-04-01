@@ -43,7 +43,12 @@ public class ItemGun extends Item
 			par3List.add("Hold right mouse button");
 			par3List.add("to charge, release to fire.");
 			par3List.add("Right mouse button click on");
-			par3List.add("any liquid to suck it up.");
+			par3List.add("any liquid source block");
+			par3List.add("to suck it up.");
+			par3List.add("Warning:");
+			par3List.add("Never tested with mod liquids,");
+			par3List.add("might crash and");
+			par3List.add("corrupt your world.");
 		}
 		else
 		{
@@ -203,9 +208,9 @@ public class ItemGun extends Item
 			int j = this.getMaxItemUseDuration(par1ItemStack) - par4;
 			float k = (j/20) + 1;
 			
-			if(currls != null && (flag || currls.amount - Math.floor(10*k) > 0))
+			if(currls != null && (flag || currls.amount - Math.floor(10*k) >= 0))
 			{
-				float f = (float) j / 20.0F;
+				float f = (float) j / 20.0F; 
 				f = (f * f + f * 2.0F) / 3.0F;
 	
 				if((double) f < 0.1D)
@@ -222,8 +227,7 @@ public class ItemGun extends Item
 				ls.amount = (int) Math.floor(10 * k);
 				EntityLiquidBullet bullet = new EntityLiquidBullet(par2World, par3EntityPlayer, f * 2.0F, ls, k);
 				par2World.spawnEntityInWorld(bullet);
-				par2World.playSoundEffect(par3EntityPlayer.posX, par3EntityPlayer.posY, par3EntityPlayer.posZ, "sound.pew",
-						1.0F, 1.0f);
+				//par2World.playSoundEffect(par3EntityPlayer.posX, par3EntityPlayer.posY, par3EntityPlayer.posZ, "sound.pew", 1.0F, 1.0f);
 			}
 
 			if(currls != null)

@@ -15,5 +15,4 @@ public class EntityColoredSmokeFX extends EntitySmokeFX
 		this.particleGreen = pgreen;
 		this.particleBlue = pblue;
 	}
-
 }
