@@ -1,6 +1,8 @@
 package net.mrkol999.modjam2013;
 
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.mrkol999.modjam2013.items.ItemGun;
 import cpw.mods.fml.common.Mod;
@@ -31,7 +33,6 @@ public class ModjamThingyCore
 	@Mod.PreInit
 	public void PreInit(FMLPreInitializationEvent e)
 	{
-		MinecraftForge.EVENT_BUS.register(proxy);
 		this.loadLocalizations();
 	}
 	
@@ -46,7 +47,7 @@ public class ModjamThingyCore
 	@Mod.PostInit
 	public void PostInit(FMLPostInitializationEvent e)
 	{
-		
+		GameRegistry.addRecipe(new ItemStack(ModjamThingyCore.itemAquaGun, 1, 0), new Object[] {"#G#", "S P", "#R#", Character.valueOf('#'), Item.ingotIron, Character.valueOf('S'), Item.slimeBall, Character.valueOf('R'), Item.redstone, Character.valueOf('P'), Block.pistonStickyBase, Character.valueOf('G'), Block.glass});
 	}
 	
 	
