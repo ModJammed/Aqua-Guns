@@ -305,14 +305,7 @@ public class EntityLiquidBullet extends Entity implements IProjectile
 							if(movingobjectposition.entityHit.attackEntityFrom(damagesource, i1))
 							{
 								if(movingobjectposition.entityHit instanceof EntityLiving)
-								{
-									EntityLiving entityliving = (EntityLiving) movingobjectposition.entityHit;
-	
-									if(!this.worldObj.isRemote)
-									{
-										entityliving.setArrowCountInEntity(entityliving.getArrowCountInEntity() + 1);
-									}
-	
+								{	
 									if(this.knockbackStrength > 0)
 									{
 										f3 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
