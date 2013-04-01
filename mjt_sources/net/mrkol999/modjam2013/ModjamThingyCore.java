@@ -54,6 +54,5 @@ public class ModjamThingyCore
 	public void loadLocalizations()
 	{
 		LanguageRegistry.instance().addStringLocalization("item.aquagun.name", "en_US", "Aqua Gun");
-		LanguageRegistry.instance().addStringLocalization("item.aquagun.name", "ru_RU", "Водяная Пушка");
 	}
 }
